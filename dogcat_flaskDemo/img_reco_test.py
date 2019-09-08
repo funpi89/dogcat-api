@@ -64,10 +64,10 @@ def predict_digit():
     #####
     with graph.as_default():
         result = model.predict([im2arr])[0]
-        response['cat'] = result[0]
-        response['dog'] = result[1]
+        response['cat'] = result[0].item()
+        response['dog'] = result[1].item()
     #####
-    return json.dumps(str([response]))
+    return json.dumps([response])
 
 if __name__ == '__main__':
     app.run()
