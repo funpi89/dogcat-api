@@ -7,7 +7,7 @@
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
-from keras.applications import ResNet50
+from keras.applications.xception import Xception
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 import cv2, numpy as np, os.path
 from keras.models import load_model
@@ -32,14 +32,17 @@ class Model(object):
         print (classes)
         self.batch_size=batch_size
         self.epochs=epochs
+        resnet = Xception(include_top=False,pooling='max', weights='imagenet' , input_shape=(299,299,3))
+        for layer in resnet.layers[:]:
+            layer.trainable = False
         
         #RESNET_WEIGHTS_PATH = 'resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5' #importing a pretrained model
         self.model = Sequential()
-        self.model.add(ResNet50(include_top=False,pooling='max', weights='imagenet' , input_shape=(224,224,3)))
+        self.model.add(resnet)
         self.model.add(Dropout(0.25))
         self.model.add(Dense(classes))
         self.model.add(Activation('softmax'))
-        self.model.layers[0].trainable = False
+        #self.model.layers[0].trainable = False
         self.model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
         self.model.summary()
         train_datagen = ImageDataGenerator(
@@ -50,14 +53,14 @@ class Model(object):
         test_datagen = ImageDataGenerator(rescale=1./255)
         train_generator = train_datagen.flow_from_directory(
             'train2',  # this is the target directory
-            target_size=(224, 224),  # all images will be resized to 150x150
+            target_size=(299, 299),  # all images will be resized to 150x150
             batch_size=batch_size,
             class_mode='categorical')  # since we use binary_crossentropy loss, we need binary labels
 
         
         validation_generator = test_datagen.flow_from_directory(
             'validation',
-            target_size=(224, 224),
+            target_size=(299, 299),
             batch_size=batch_size,
             class_mode='categorical')
 
@@ -84,11 +87,11 @@ class Model(object):
 
     def predict(self, image):
         
-        image=cv2.resize(image,(224,224),interpolation=cv2.INTER_CUBIC)
+        image=cv2.resize(image,(299,299),interpolation=cv2.INTER_CUBIC)
         #print(image.shape)
         image=img_to_array(image)
         #print(image.shape)
-        image = image.reshape(-1,224,224,3)
+        image = image.reshape(-1,299,299,3)
         #print(image.shape)
         image = image.astype('float32')
         image /= 255
@@ -105,13 +108,13 @@ class Model(object):
             for file in files:
                 path = os.path.join(testdir,file)
                 image = cv2.imread(path)
-                image=cv2.resize(image,(224,224),interpolation=cv2.INTER_CUBIC)
-                image = image.reshape(224,224,3)
+                image=cv2.resize(image,(299,299),interpolation=cv2.INTER_CUBIC)
+                image = image.reshape(299,299,3)
                 image = image.astype('float32')
                 image /= 255
                 images.append(image)
         images = np.array(images)
-        images = images.reshape(-1,224,224,3)
+        images = images.reshape(-1,299,299,3)
         results = self.model.predict_classes(images)
         return results
     
@@ -122,18 +125,18 @@ class Model(object):
             for file in files:
                 path = os.path.join(testdir,file)
                 image = cv2.imread(path)
-                image=cv2.resize(image,(224,224),interpolation=cv2.INTER_CUBIC)
-                image = image.reshape(224,224,3)
+                image=cv2.resize(image,(299,299),interpolation=cv2.INTER_CUBIC)
+                image = image.reshape(299,299,3)
                 image = image.astype('float32')
                 image /= 255
                 images.append(image)
         images = np.array(images)
-        images = images.reshape(-1,224,224,3)
+        images = images.reshape(-1,299,299,3)
         results = self.model.predict(images)
         classifier = {0:'cat',1:'dog'}
-        response = {}
         prediction = []
         for result in results:
+            response = {}
             response['cat'] = result[0]
             response['dog'] = result[1]
             prediction.append(response)

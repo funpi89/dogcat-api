@@ -7,7 +7,7 @@ Created on Thu Sep  5 16:39:18 2019
 
 import requests
 
-url = 'http://localhost:8000/predict_digit'
+url = 'http://localhost:5000/predict_digit'
 image_path = 'dogtest.jpg'
 files = {
         'image':open(image_path,'rb'),
