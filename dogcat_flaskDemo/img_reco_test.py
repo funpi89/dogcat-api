@@ -59,7 +59,7 @@ def predict_digit():
     
     im = Image.open(request.files['image'])
     im = im.resize((299,299))
-    im2arr = np.array(im).reshape(1,299,299,3)
+    im2arr = (np.array(im)/255).reshape(1,299,299,3)
     response = {}
     #####
     with graph.as_default():
