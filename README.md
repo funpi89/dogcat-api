@@ -9,4 +9,4 @@
 
 ## 在terminal輸入`python request_test.py`的結果
 ![image](https://github.com/funpi89/dogcat-api/blob/branch1/pre_json.JPG)
-![image]()
+![image](https://github.com/funpi89/dogcat-api/blob/branch1/dogcat_flaskDemo/dogtest.jpg)
